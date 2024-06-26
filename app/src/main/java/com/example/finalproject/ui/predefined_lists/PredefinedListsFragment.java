@@ -18,14 +18,14 @@ public class PredefinedListsFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        PredefinedListsViewModel notificationsViewModel =
+        PredefinedListsViewModel predefinedListsViewModel =
                 new ViewModelProvider(this).get(PredefinedListsViewModel.class);
 
         binding = FragmentPredefinedListsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
         final TextView textView = binding.textPredefinedLists;
-        notificationsViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
+        predefinedListsViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
         return root;
     }
 

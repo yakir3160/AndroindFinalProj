@@ -18,14 +18,12 @@ public class AllProductsFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        AllProductsModel homeViewModel =
+        AllProductsModel allProductsModel =
                 new ViewModelProvider(this).get(AllProductsModel.class);
 
         binding = FragmentAllProductsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-//        final TextView textView = binding.te
-//        homeViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
         return root;
     }
 
