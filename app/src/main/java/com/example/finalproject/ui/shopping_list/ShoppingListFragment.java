@@ -26,8 +26,6 @@ public class ShoppingListFragment extends Fragment {
         binding = FragmentShoppingListBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        final TextView textView = binding.textShoppingList;
-        shoppingListViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
 
         return root;
     }
