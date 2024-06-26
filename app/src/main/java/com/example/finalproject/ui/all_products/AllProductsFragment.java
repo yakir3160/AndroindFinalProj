@@ -36,8 +36,27 @@ public class AllProductsFragment extends Fragment {
 
         // Example list of products
         List<Product> productList = new ArrayList<>();
-        productList.add(new Product("Zero coke"));
+        productList.add(new Product("Zero Coke"));
         productList.add(new Product("Buns"));
+        productList.add(new Product("Milk"));
+        productList.add(new Product("Eggs"));
+        productList.add(new Product("Bread"));
+        productList.add(new Product("Butter"));
+        productList.add(new Product("Cheese"));
+        productList.add(new Product("Yogurt"));
+        productList.add(new Product("Apples"));
+        productList.add(new Product("Bananas"));
+        productList.add(new Product("Oranges"));
+        productList.add(new Product("Tomatoes"));
+        productList.add(new Product("Potatoes"));
+        productList.add(new Product("Chicken"));
+        productList.add(new Product("Beef"));
+        productList.add(new Product("Pasta"));
+        productList.add(new Product("Rice"));
+        productList.add(new Product("Cereal"));
+        productList.add(new Product("Juice"));
+        productList.add(new Product("Water"));
+
 
         // Set up adapter
         productAdapter = new ProductAdapter(productList, getContext());
