@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">FinalProject</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="all_products">All products</string>
+    <string name="shopping_list">Shopping list</string>
+    <string name="predefined_lists">Predefined lists</string>
+    <string name="product_image">Product Image</string>
+    <string name="product_name">Product Name</string>
+</resources>
