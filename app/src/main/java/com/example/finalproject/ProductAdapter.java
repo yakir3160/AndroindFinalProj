@@ -1,6 +1,5 @@
 package com.example.finalproject;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,50 +8,53 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.finalproject.R;
-import com.example.finalproject.Product;
-
+import java.util.ArrayList;
 import java.util.List;
 
 public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductViewHolder> {
 
-    private List<Product> productList;
-    private Context context;
+    private List<Product> products;
 
-    public ProductAdapter(List<Product> productList, Context context) {
-        this.productList = productList;
-        this.context = context;
+    public ProductAdapter() {
+        this.products = new ArrayList<>();
+    }
+
+    public void setProducts(List<Product> products) {
+        this.products = products;
+        notifyDataSetChanged();
     }
 
     @NonNull
     @Override
     public ProductViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.product_item, parent, false);
-        return new ProductViewHolder(view);
+        View itemView = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.product_item, parent, false);
+        return new ProductViewHolder(itemView);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ProductViewHolder holder, int position) {
-        Product product = productList.get(position);
-        holder.productNameTextView.setText(product.getName());
-
-        // Handle button click here if needed
-        // holder.removeFromShoppingListButton.setOnClickListener(v -> {
-        //     // Handle button click action
-        // });
+        Product product = products.get(position);
+        holder.bind(product);
     }
 
     @Override
     public int getItemCount() {
-        return productList.size();
+        return products.size();
     }
 
     public static class ProductViewHolder extends RecyclerView.ViewHolder {
-        TextView productNameTextView;
+
+        private TextView nameTextView;
+        private TextView categoryTextView;
 
         public ProductViewHolder(@NonNull View itemView) {
             super(itemView);
-            productNameTextView = itemView.findViewById(R.id.productNameTextView);
+            nameTextView = itemView.findViewById(R.id.productNameTextView);
+        }
+
+        public void bind(Product product) {
+            nameTextView.setText(product.getName());
         }
     }
 }

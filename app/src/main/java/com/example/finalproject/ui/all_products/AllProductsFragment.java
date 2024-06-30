@@ -1,73 +1,49 @@
 package com.example.finalproject.ui.all_products;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.example.finalproject.databinding.FragmentAllProductsBinding;
-import com.example.finalproject.ProductAdapter;
 import com.example.finalproject.Product;
+import com.example.finalproject.R;
 
-import java.util.ArrayList;
+import com.example.finalproject.ProductAdapter;
+import com.example.finalproject.data.ProductRepository;
+
 import java.util.List;
 
 public class AllProductsFragment extends Fragment {
 
-    private AllProductsModel allProductsModel;
-    private FragmentAllProductsBinding binding;
-    private ProductAdapter productAdapter;
+    private RecyclerView recyclerView;
+    private ProductAdapter adapter;
+    private ProductRepository productRepository;
 
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        binding = FragmentAllProductsBinding.inflate(inflater, container, false);
-        View root = binding.getRoot();
+    @SuppressLint("MissingInflatedId")
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             ViewGroup container, Bundle savedInstanceState) {
+        View root = inflater.inflate(R.layout.fragment_all_products, container, false);
 
-        // Set up RecyclerView
-        RecyclerView recyclerView = binding.recyclerView;
+        recyclerView = root.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        adapter = new ProductAdapter();
+        recyclerView.setAdapter(adapter);
 
-        // Example list of products
-        List<Product> productList = new ArrayList<>();
-        productList.add(new Product("Zero Coke"));
-        productList.add(new Product("Buns"));
-        productList.add(new Product("Milk"));
-        productList.add(new Product("Eggs"));
-        productList.add(new Product("Bread"));
-        productList.add(new Product("Butter"));
-        productList.add(new Product("Cheese"));
-        productList.add(new Product("Yogurt"));
-        productList.add(new Product("Apples"));
-        productList.add(new Product("Bananas"));
-        productList.add(new Product("Oranges"));
-        productList.add(new Product("Tomatoes"));
-        productList.add(new Product("Potatoes"));
-        productList.add(new Product("Chicken"));
-        productList.add(new Product("Beef"));
-        productList.add(new Product("Pasta"));
-        productList.add(new Product("Rice"));
-        productList.add(new Product("Cereal"));
-        productList.add(new Product("Juice"));
-        productList.add(new Product("Water"));
-
-
-        // Set up adapter
-        productAdapter = new ProductAdapter(productList, getContext());
-        recyclerView.setAdapter(productAdapter);
+        // Initialize ProductRepository and observe changes
+        productRepository = ProductRepository.getInstance();
+        productRepository.getProductsLiveData().observe(getViewLifecycleOwner(), new Observer<List<Product>>() {
+            @Override
+            public void onChanged(List<Product> products) {
+                adapter.setProducts(products);
+            }
+        });
 
         return root;
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null; // Release binding when fragment view is destroyed
     }
 }
