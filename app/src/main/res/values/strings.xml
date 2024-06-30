@@ -5,10 +5,9 @@
     <string name="title_notifications">Notifications</string>
     <string name="all_products">All products</string>
     <string name="shopping_list">Shopping list</string>
-    <string name="predefined_lists">Predefined lists</string>
     <string name="product_image">Product Image</string>
     <string name="product_name">Product Name</string>
     <string name="product_name_all">Product Name</string>
     <string name="add_to_shopping_list">Add to Shopping List</string>
-    <string name="add_to_predefined_list">ADD TO PREDEFINED LIST</string>
+    <string name="add_product">Add Product</string>
 </resources>

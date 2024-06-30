@@ -12,8 +12,8 @@
         android:title="@string/shopping_list" />
 
     <item
-        android:id="@+id/navigation_predefined_lists"
-        android:icon="@android:drawable/ic_dialog_dialer"
-        android:title="@string/predefined_lists" />
+        android:id="@+id/navigation_add_product"
+        android:icon="@android:drawable/ic_input_add"
+        android:title="@string/add_product" />
 
 </menu>

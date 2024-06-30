@@ -15,11 +15,11 @@
         android:id="@+id/navigation_shopping_list"
         android:name="com.example.finalproject.ui.shopping_list.ShoppingListFragment"
         android:label="Shopping list"
-        tools:layout="@layout/fragment_predefined_lists" />
+        tools:layout="@layout/fragment_shopping_list" />
 
     <fragment
-        android:id="@+id/navigation_predefined_lists"
-        android:name="com.example.finalproject.ui.predefined_lists.PredefinedListsFragment"
-        android:label="Predefined lists"
-        tools:layout="@layout/fragment_shopping_list" />
+        android:id="@+id/navigation_add_product"
+        android:name="com.example.finalproject.ui.add_product.AddProductFragment"
+        android:label="Add product"
+        tools:layout="@layout/fragment_add_product" />
 </navigation>

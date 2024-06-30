@@ -8,13 +8,14 @@ android {
     compileSdk = 34
     buildFeatures.dataBinding = true
 
+
     defaultConfig {
         applicationId = "com.example.finalproject"
         minSdk = 29
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-
+        vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
