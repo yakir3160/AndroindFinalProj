@@ -27,7 +27,6 @@ public class AddProductFragment extends Fragment {
 
         binding = FragmentAddProductBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-        // Set up the spinner
         Spinner spinner = binding.spinner;
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
                 R.array.category_array, android.R.layout.simple_spinner_item);

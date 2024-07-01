@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -33,10 +34,17 @@ public class AllProductsFragment extends Fragment {
         recyclerView = root.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new ProductAdapter();
+        adapter.setProductClickListener(new ProductAdapter.ProductClickListener() {
+            @Override
+            public void onAddToShoppingListClicked(Product product) {
+                Toast.makeText(getContext(),
+                        "Clicked: " + product.getName(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
         recyclerView.setAdapter(adapter);
 
-        // Initialize ProductRepository and observe changes
-        productRepository = ProductRepository.getInstance();
+        productRepository = ProductRepository.getInstance(getContext());
         productRepository.getProductsLiveData().observe(getViewLifecycleOwner(), new Observer<List<Product>>() {
             @Override
             public void onChanged(List<Product> products) {
