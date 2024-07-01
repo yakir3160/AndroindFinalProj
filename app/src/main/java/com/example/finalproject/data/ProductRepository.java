@@ -8,8 +8,8 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.finalproject.Product;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +22,7 @@ public class ProductRepository {
     private MutableLiveData<List<Product>> shoppingListLiveData;
     private CollectionReference productsCollection;
     private CollectionReference shoppingListCollection;
-    private static Context context;
+    private Context context;
 
     private ProductRepository(Context context) {
         this.context = context.getApplicationContext(); // Use application context
@@ -54,7 +54,7 @@ public class ProductRepository {
         productsCollection.get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     List<Product> products = new ArrayList<>();
-                    for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                    for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                         Product product = documentSnapshot.toObject(Product.class);
                         products.add(product);
                     }
@@ -70,7 +70,7 @@ public class ProductRepository {
         shoppingListCollection.get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     List<Product> shoppingList = new ArrayList<>();
-                    for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                    for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                         Product product = documentSnapshot.toObject(Product.class);
                         shoppingList.add(product);
                     }
@@ -82,25 +82,63 @@ public class ProductRepository {
                 });
     }
 
-    public void addProductToShoppingList(Product product) {
-        shoppingListCollection.add(product)
-                .addOnSuccessListener(documentReference -> {
-                    showToast("Product added to shopping list");
-                    removeProductFromProducts(product.getId());
+    public void addProductToDb(final Product product) {
+        productsCollection.whereEqualTo("name", product.getName()).get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (queryDocumentSnapshots.isEmpty()) {
+                        // Create a new document with an auto-generated ID
+                        String id = productsCollection.document().getId();
+                        product.setId(id); // Set the document ID to the product
+
+                        // Add the product with the generated document ID
+                        productsCollection.document(id).set(product)
+                                .addOnSuccessListener(aVoid -> {
+                                    showToast("Product added successfully");
+                                    getProducts(); // Refresh the product list
+                                })
+                                .addOnFailureListener(e -> {
+                                    showToast("Failed to add product");
+                                });
+                    } else {
+                        showToast("Product with the same name already exists");
+                    }
                 })
                 .addOnFailureListener(e -> {
-                    showToast("Failed to add product to shopping list");
+                    showToast("Failed to check if product exists");
                 });
     }
 
-    private void removeProductFromProducts(String productId) {
-        productsCollection.document(productId)
-                .delete()
-                .addOnSuccessListener(aVoid -> {
-                    showToast("Product removed from products");
+    public void addProductToShoppingList(Product product) {
+        // Check if product already exists in shopping list
+        shoppingListCollection.document(product.getId()).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        showToast("Product is already in the shopping list");
+                    } else {
+                        // Add product to shopping list
+                        shoppingListCollection.document(product.getId()).set(product)
+                                .addOnSuccessListener(aVoid -> {
+                                    showToast("Product added to shopping list");
+                                    getShoppingList(); // Refresh the shopping list
+                                })
+                                .addOnFailureListener(e -> {
+                                    showToast("Failed to add product to shopping list");
+                                });
+                    }
                 })
                 .addOnFailureListener(e -> {
-                    showToast("Failed to remove product from products");
+                    showToast("Failed to check if product exists in shopping list");
+                });
+    }
+
+    public void removeProductFromShoppingList(Product product) {
+        shoppingListCollection.document(product.getId()).delete()
+                .addOnSuccessListener(aVoid -> {
+                    showToast("Product removed from shopping list");
+                    getShoppingList(); // Refresh the shopping list
+                })
+                .addOnFailureListener(e -> {
+                    showToast("Failed to remove product from shopping list");
                 });
     }
 
