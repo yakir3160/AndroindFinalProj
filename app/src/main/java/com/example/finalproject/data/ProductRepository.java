@@ -3,20 +3,20 @@ package com.example.finalproject.data;
 import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-
 import com.example.finalproject.Product;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class ProductRepository {
+    // Singleton instance
     private static ProductRepository instance;
+
+    // Firebase and LiveData fields
     private FirebaseFirestore db;
     private MutableLiveData<List<Product>> productsLiveData;
     private MutableLiveData<List<Product>> shoppingListLiveData;
@@ -24,19 +24,17 @@ public class ProductRepository {
     private CollectionReference shoppingListCollection;
     private Context context;
 
+    // Private constructor for singleton pattern
     private ProductRepository(Context context) {
         if (context != null) {
             this.context = context.getApplicationContext();
         }
-        db = FirebaseFirestore.getInstance();
-        productsCollection = db.collection("products");
-        shoppingListCollection = db.collection("shoppingList");
-        productsLiveData = new MutableLiveData<>();
-        shoppingListLiveData = new MutableLiveData<>();
-        getProducts();
-        getShoppingList();
+        initializeFirebase();
+        initializeLiveData();
+        fetchInitialData();
     }
 
+    // Singleton getInstance method
     public static synchronized ProductRepository getInstance(Context context) {
         if (instance == null) {
             instance = new ProductRepository(context);
@@ -46,6 +44,24 @@ public class ProductRepository {
         return instance;
     }
 
+    // Initialization methods
+    private void initializeFirebase() {
+        db = FirebaseFirestore.getInstance();
+        productsCollection = db.collection("products");
+        shoppingListCollection = db.collection("shoppingList");
+    }
+
+    private void initializeLiveData() {
+        productsLiveData = new MutableLiveData<>();
+        shoppingListLiveData = new MutableLiveData<>();
+    }
+
+    private void fetchInitialData() {
+        getProducts();
+        getShoppingList();
+    }
+
+    // LiveData getters
     public LiveData<List<Product>> getProductsLiveData() {
         return productsLiveData;
     }
@@ -54,6 +70,7 @@ public class ProductRepository {
         return shoppingListLiveData;
     }
 
+    // Fetch methods
     private void getProducts() {
         productsCollection.get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -65,7 +82,6 @@ public class ProductRepository {
                         }
                     }
                     productsLiveData.setValue(products);
-                    logMessage("Products fetched successfully");
                 })
                 .addOnFailureListener(e -> logMessage("Failed to fetch products: " + e.getMessage()));
     }
@@ -81,11 +97,11 @@ public class ProductRepository {
                         }
                     }
                     shoppingListLiveData.setValue(shoppingList);
-                    logMessage("Shopping list fetched successfully");
                 })
                 .addOnFailureListener(e -> logMessage("Failed to fetch shopping list: " + e.getMessage()));
     }
 
+    // Product management methods
     public void addProductToDb(final Product product) {
         productsCollection.whereEqualTo("name", product.getName()).get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -105,19 +121,18 @@ public class ProductRepository {
                 .addOnFailureListener(e -> logMessage("Failed to check if product exists: " + e.getMessage()));
     }
 
+    // Shopping list management methods
     public void addProductToShoppingList(Product product) {
         shoppingListCollection.document(product.getId()).get()
                 .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        logMessage("Product is already in the shopping list");
-                    } else {
+                    if (!documentSnapshot.exists()) {
                         shoppingListCollection.document(product.getId()).set(product)
                                 .addOnSuccessListener(aVoid -> {
-                                    logMessage("Product added to shopping list");
                                     getShoppingList();
                                 })
                                 .addOnFailureListener(e -> logMessage("Failed to add product to shopping list: " + e.getMessage()));
                     }
+                    // If the product already exists, we do nothing and don't show any message
                 })
                 .addOnFailureListener(e -> logMessage("Failed to check if product exists in shopping list: " + e.getMessage()));
     }
@@ -125,12 +140,12 @@ public class ProductRepository {
     public void removeProductFromShoppingList(Product product) {
         shoppingListCollection.document(product.getId()).delete()
                 .addOnSuccessListener(aVoid -> {
-                    logMessage("Product removed from shopping list");
                     getShoppingList();
                 })
                 .addOnFailureListener(e -> logMessage("Failed to remove product from shopping list: " + e.getMessage()));
     }
 
+    // Utility method for logging and displaying messages
     private void logMessage(String message) {
         Log.d("ProductRepository", message);
         if (context != null) {
