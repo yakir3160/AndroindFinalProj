@@ -1,14 +1,17 @@
 package com.example.finalproject.ui.add_product;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -46,6 +49,9 @@ public class AddProductFragment extends Fragment {
 
             // Simple input validation
             if (!productName.isEmpty() && !productCategory.isEmpty()) {
+                // Reset red border if validation succeeds
+                resetEditTextBorder(binding.addProductNameText);
+
                 Product product = new Product(productName, productCategory);
                 ProductRepository.getInstance(getContext()).addProductToDb(product);
 
@@ -58,6 +64,9 @@ public class AddProductFragment extends Fragment {
             } else {
                 // Show a toast message if validation fails
                 Toast.makeText(getContext(), "Please enter product name and select a category", Toast.LENGTH_SHORT).show();
+
+                // Highlight the product name field with a red border
+                highlightEditTextBorder(binding.addProductNameText);
             }
         });
 
@@ -69,5 +78,16 @@ public class AddProductFragment extends Fragment {
         super.onDestroyView();
         // Set binding to null to prevent memory leaks
         binding = null;
+    }
+    private void highlightEditTextBorder(View editText) {
+        // Set a red border around the EditText
+        Drawable drawable = ContextCompat.getDrawable(requireContext(), R.drawable.edit_text_error_background);
+        editText.setBackground(drawable);
+    }
+
+
+
+    private void resetEditTextBorder(View editText) {
+        editText.setBackground(null); // Reset to default background
     }
 }
