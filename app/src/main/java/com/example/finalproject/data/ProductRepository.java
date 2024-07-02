@@ -10,6 +10,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ProductRepository {
@@ -72,7 +73,7 @@ public class ProductRepository {
 
     // Fetch methods
     private void getProducts() {
-        productsCollection.get()
+        productsCollection.orderBy("name").get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     List<Product> products = new ArrayList<>();
                     for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
@@ -81,13 +82,15 @@ public class ProductRepository {
                             products.add(product);
                         }
                     }
+                    // Sort products alphabetically by name
+                    Collections.sort(products, (p1, p2) -> p1.getName().compareToIgnoreCase(p2.getName()));
                     productsLiveData.setValue(products);
                 })
                 .addOnFailureListener(e -> logMessage("Failed to fetch products: " + e.getMessage()));
     }
 
     private void getShoppingList() {
-        shoppingListCollection.get()
+        shoppingListCollection.orderBy("name").get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     List<Product> shoppingList = new ArrayList<>();
                     for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
@@ -96,10 +99,13 @@ public class ProductRepository {
                             shoppingList.add(product);
                         }
                     }
+                    // Sort shopping list alphabetically by name
+                    Collections.sort(shoppingList, (p1, p2) -> p1.getName().compareToIgnoreCase(p2.getName()));
                     shoppingListLiveData.setValue(shoppingList);
                 })
                 .addOnFailureListener(e -> logMessage("Failed to fetch shopping list: " + e.getMessage()));
     }
+
 
     // Product management methods
     public void addProductToDb(final Product product) {
