@@ -1,6 +1,7 @@
 package com.example.finalproject.data;
 
 import android.content.Context;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.lifecycle.LiveData;
@@ -15,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProductRepository {
-
     private static ProductRepository instance;
     private FirebaseFirestore db;
     private MutableLiveData<List<Product>> productsLiveData;
@@ -25,7 +25,9 @@ public class ProductRepository {
     private Context context;
 
     private ProductRepository(Context context) {
-        this.context = context.getApplicationContext(); // Use application context
+        if (context != null) {
+            this.context = context.getApplicationContext();
+        }
         db = FirebaseFirestore.getInstance();
         productsCollection = db.collection("products");
         shoppingListCollection = db.collection("shoppingList");
@@ -38,6 +40,8 @@ public class ProductRepository {
     public static synchronized ProductRepository getInstance(Context context) {
         if (instance == null) {
             instance = new ProductRepository(context);
+        } else if (context != null && instance.context == null) {
+            instance.context = context.getApplicationContext();
         }
         return instance;
     }
@@ -56,14 +60,14 @@ public class ProductRepository {
                     List<Product> products = new ArrayList<>();
                     for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                         Product product = documentSnapshot.toObject(Product.class);
-                        products.add(product);
+                        if (product != null) {
+                            products.add(product);
+                        }
                     }
                     productsLiveData.setValue(products);
-                    showToast("Products fetched successfully");
+                    logMessage("Products fetched successfully");
                 })
-                .addOnFailureListener(e -> {
-                    showToast("Failed to fetch products");
-                });
+                .addOnFailureListener(e -> logMessage("Failed to fetch products: " + e.getMessage()));
     }
 
     private void getShoppingList() {
@@ -72,77 +76,65 @@ public class ProductRepository {
                     List<Product> shoppingList = new ArrayList<>();
                     for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                         Product product = documentSnapshot.toObject(Product.class);
-                        shoppingList.add(product);
+                        if (product != null) {
+                            shoppingList.add(product);
+                        }
                     }
                     shoppingListLiveData.setValue(shoppingList);
-                    showToast("Shopping list fetched successfully");
+                    logMessage("Shopping list fetched successfully");
                 })
-                .addOnFailureListener(e -> {
-                    showToast("Failed to fetch shopping list");
-                });
+                .addOnFailureListener(e -> logMessage("Failed to fetch shopping list: " + e.getMessage()));
     }
 
     public void addProductToDb(final Product product) {
         productsCollection.whereEqualTo("name", product.getName()).get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (queryDocumentSnapshots.isEmpty()) {
-                        // Create a new document with an auto-generated ID
                         String id = productsCollection.document().getId();
-                        product.setId(id); // Set the document ID to the product
-
-                        // Add the product with the generated document ID
+                        product.setId(id);
                         productsCollection.document(id).set(product)
                                 .addOnSuccessListener(aVoid -> {
-                                    showToast("Product added successfully");
-                                    getProducts(); // Refresh the product list
+                                    logMessage("Product added successfully");
+                                    getProducts();
                                 })
-                                .addOnFailureListener(e -> {
-                                    showToast("Failed to add product");
-                                });
+                                .addOnFailureListener(e -> logMessage("Failed to add product: " + e.getMessage()));
                     } else {
-                        showToast("Product with the same name already exists");
+                        logMessage("Product with the same name already exists");
                     }
                 })
-                .addOnFailureListener(e -> {
-                    showToast("Failed to check if product exists");
-                });
+                .addOnFailureListener(e -> logMessage("Failed to check if product exists: " + e.getMessage()));
     }
 
     public void addProductToShoppingList(Product product) {
-        // Check if product already exists in shopping list
         shoppingListCollection.document(product.getId()).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
-                        showToast("Product is already in the shopping list");
+                        logMessage("Product is already in the shopping list");
                     } else {
-                        // Add product to shopping list
                         shoppingListCollection.document(product.getId()).set(product)
                                 .addOnSuccessListener(aVoid -> {
-                                    showToast("Product added to shopping list");
-                                    getShoppingList(); // Refresh the shopping list
+                                    logMessage("Product added to shopping list");
+                                    getShoppingList();
                                 })
-                                .addOnFailureListener(e -> {
-                                    showToast("Failed to add product to shopping list");
-                                });
+                                .addOnFailureListener(e -> logMessage("Failed to add product to shopping list: " + e.getMessage()));
                     }
                 })
-                .addOnFailureListener(e -> {
-                    showToast("Failed to check if product exists in shopping list");
-                });
+                .addOnFailureListener(e -> logMessage("Failed to check if product exists in shopping list: " + e.getMessage()));
     }
 
     public void removeProductFromShoppingList(Product product) {
         shoppingListCollection.document(product.getId()).delete()
                 .addOnSuccessListener(aVoid -> {
-                    showToast("Product removed from shopping list");
-                    getShoppingList(); // Refresh the shopping list
+                    logMessage("Product removed from shopping list");
+                    getShoppingList();
                 })
-                .addOnFailureListener(e -> {
-                    showToast("Failed to remove product from shopping list");
-                });
+                .addOnFailureListener(e -> logMessage("Failed to remove product from shopping list: " + e.getMessage()));
     }
 
-    private void showToast(String message) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+    private void logMessage(String message) {
+        Log.d("ProductRepository", message);
+        if (context != null) {
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+        }
     }
 }
