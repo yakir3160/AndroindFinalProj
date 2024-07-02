@@ -24,26 +24,39 @@ public class AddProductFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+        // Instantiate ViewModel
         AddProductViewModel addProductViewModel =
                 new ViewModelProvider(this).get(AddProductViewModel.class);
 
+        // Use View Binding to inflate the layout
         binding = FragmentAddProductBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
+        // Setup Spinner with adapter
         Spinner spinner = binding.spinner;
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
                 R.array.category_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
 
+        // Set OnClickListener for the button to add product to the database
         binding.addToDbButton.setOnClickListener(v -> {
             String productName = binding.addProductNameText.getText().toString();
             String productCategory = spinner.getSelectedItem().toString();
 
+            // Simple input validation
             if (!productName.isEmpty() && !productCategory.isEmpty()) {
                 Product product = new Product(productName, productCategory);
                 ProductRepository.getInstance(getContext()).addProductToDb(product);
+
+                // Clear input fields after adding the product
+                binding.addProductNameText.setText("");
+                spinner.setSelection(0); // Reset spinner to the first item (if applicable)
+
+                // Optionally show a confirmation message
+                Toast.makeText(getContext(), "Product added successfully", Toast.LENGTH_SHORT).show();
             } else {
+                // Show a toast message if validation fails
                 Toast.makeText(getContext(), "Please enter product name and select a category", Toast.LENGTH_SHORT).show();
             }
         });
@@ -54,6 +67,7 @@ public class AddProductFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        // Set binding to null to prevent memory leaks
         binding = null;
     }
 }
