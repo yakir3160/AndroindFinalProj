@@ -1,19 +1,34 @@
 package com.example.finalproject.ui.shopping_list;
 
+import android.app.Application;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class ShoppingListViewModel extends ViewModel {
+import com.example.finalproject.Product;
+import com.example.finalproject.data.ProductRepository;
 
-    private final MutableLiveData<String> mText;
+import java.util.List;
+
+public class ShoppingListViewModel extends ViewModel {
+    private ProductRepository productRepository;
 
     public ShoppingListViewModel() {
-        mText = new MutableLiveData<>();
-        mText.setValue("This is shopping list fragment");
+        productRepository = ProductRepository.getInstance(null);
     }
 
-    public LiveData<String> getText() {
-        return mText;
+    public void init(Application application) {
+        if (productRepository == null) {
+            productRepository = ProductRepository.getInstance(application);
+        }
+    }
+
+    public LiveData<List<Product>> getShoppingList() {
+        return productRepository.getShoppingListLiveData();
+    }
+
+    public void removeProductFromShoppingList(Product product) {
+        productRepository.removeProductFromShoppingList(product);
     }
 }
