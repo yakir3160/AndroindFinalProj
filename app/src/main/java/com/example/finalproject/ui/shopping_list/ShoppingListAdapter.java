@@ -26,6 +26,11 @@ public class ShoppingListAdapter extends RecyclerView.Adapter<ShoppingListAdapte
         this.shoppingList = shoppingList;
     }
 
+    public void setShoppingList(List<Product> shoppingList) {
+        this.shoppingList = shoppingList;
+        notifyDataSetChanged();
+    }
+
     public interface OnRemoveButtonClickListener {
         void onRemoveButtonClick(Product product);
     }
