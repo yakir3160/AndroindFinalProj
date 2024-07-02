@@ -37,9 +37,7 @@ public class AllProductsFragment extends Fragment {
         adapter.setProductClickListener(new ProductAdapter.ProductClickListener() {
             @Override
             public void onAddToShoppingListClicked(Product product) {
-                Toast.makeText(getContext(),
-                        "Clicked: " + product.getName(),
-                        Toast.LENGTH_SHORT).show();
+                productRepository.addProductToShoppingList(product);
             }
         });
         recyclerView.setAdapter(adapter);
