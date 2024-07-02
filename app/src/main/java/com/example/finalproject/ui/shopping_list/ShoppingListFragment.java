@@ -16,46 +16,56 @@ import com.example.finalproject.databinding.FragmentShoppingListBinding;
 
 import java.util.ArrayList;
 
+// This fragment displays the user's shopping list
 public class ShoppingListFragment extends Fragment {
 
-        private FragmentShoppingListBinding binding;
-        private ShoppingListViewModel shoppingListViewModel;
-        private ShoppingListAdapter adapter;
+    private FragmentShoppingListBinding binding;
+    private ShoppingListViewModel shoppingListViewModel;
+    private ShoppingListAdapter adapter;
 
-        @Override
-        public View onCreateView(@NonNull LayoutInflater inflater,
-                                 ViewGroup container, Bundle savedInstanceState) {
-            binding = FragmentShoppingListBinding.inflate(inflater, container, false);
-            View root = binding.getRoot();
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             ViewGroup container, Bundle savedInstanceState) {
+        // Inflate the layout for this fragment using view binding
+        binding = FragmentShoppingListBinding.inflate(inflater, container, false);
+        View root = binding.getRoot();
 
-            shoppingListViewModel = new ViewModelProvider(this).get(ShoppingListViewModel.class);
-            shoppingListViewModel.init(requireActivity().getApplication());
+        // Initialize the ViewModel
+        shoppingListViewModel = new ViewModelProvider(this).get(ShoppingListViewModel.class);
+        shoppingListViewModel.init(requireActivity().getApplication());
 
-            setupRecyclerView();
-            observeShoppingList();
+        // Set up the RecyclerView
+        setupRecyclerView();
 
-            return root;
-        }
+        // Observe changes to the shopping list
+        observeShoppingList();
 
-        private void setupRecyclerView() {
-            adapter = new ShoppingListAdapter(requireContext(), new ArrayList<>());
-            binding.recyclerViewShoppingList.setAdapter(adapter);
-            binding.recyclerViewShoppingList.setLayoutManager(new LinearLayoutManager(requireContext()));
-
-            adapter.setOnRemoveButtonClickListener(product -> {
-                shoppingListViewModel.removeProductFromShoppingList(product);
-            });
-        }
-
-        private void observeShoppingList() {
-            shoppingListViewModel.getShoppingList().observe(getViewLifecycleOwner(), products -> {
-                adapter.setShoppingList(products);
-            });
-        }
-
-        @Override
-        public void onDestroyView() {
-            super.onDestroyView();
-            binding = null;
-        }
+        return root;
     }
+
+    // Configure the RecyclerView and its adapter
+    private void setupRecyclerView() {
+        adapter = new ShoppingListAdapter(requireContext(), new ArrayList<>());
+        binding.recyclerViewShoppingList.setAdapter(adapter);
+        binding.recyclerViewShoppingList.setLayoutManager(new LinearLayoutManager(requireContext()));
+
+        // Set up the click listener for the remove button
+        adapter.setOnRemoveButtonClickListener(product -> {
+            shoppingListViewModel.removeProductFromShoppingList(product);
+        });
+    }
+
+    // Observe changes to the shopping list and update the UI accordingly
+    private void observeShoppingList() {
+        shoppingListViewModel.getShoppingList().observe(getViewLifecycleOwner(), products -> {
+            adapter.setShoppingList(products);
+        });
+    }
+
+    // Clean up the binding when the view is destroyed
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
+}
